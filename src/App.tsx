@@ -3,18 +3,20 @@ import NavBar from './components/navbar/NavBar';
 import { LoaderProvider } from './conntexts/LoaderContext';
 import Footer from './components/footer/Footer';
 import HomePage from './pages/HomePage';
+import ItemsPage from './pages/ItemsPage';
 
 function App() {
   return (
     <BrowserRouter>
-          <div className="flex flex-col min-h-screen font-spectral text-white bg-black items-center justify-between">
+          <div className="flex flex-col min-h-screen font-spectral text-white bg-white items-center justify-between font-josefin">
             <div className='w-full'>
               <NavBar />
             </div>
             <LoaderProvider>
-              <div className="flex-grow bg-white h-full w-full">
+              <div className="flex-grow bg-white h-full w-full pt-17 max-w-boundary mx-auto">
                 <Routes>
                   <Route path="/" element={<HomePage />} />
+                  <Route path="/items/:id" element={<ItemsPage/>}/>
                 </Routes>
               </div>
             </LoaderProvider>
