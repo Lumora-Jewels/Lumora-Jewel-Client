@@ -4,6 +4,8 @@ import { LoaderProvider } from './conntexts/LoaderContext';
 import Footer from './components/footer/Footer';
 import HomePage from './pages/HomePage';
 import ItemsPage from './pages/ItemsPage';
+import AboutUs from './pages/AboutPage';
+import Contact from './pages/Contact';
 
 function App() {
   return (
@@ -17,6 +19,8 @@ function App() {
                 <Routes>
                   <Route path="/" element={<HomePage />} />
                   <Route path="/items/:id" element={<ItemsPage/>}/>
+                  <Route path= "/about" element={<AboutUs/>}/>
+                  <Route path= "/contact" element={<Contact/>}/>
                 </Routes>
               </div>
             </LoaderProvider>
