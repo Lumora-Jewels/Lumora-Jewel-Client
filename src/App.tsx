@@ -17,9 +17,10 @@ function App() {
             <LoaderProvider>
               <div className="flex-grow bg-white h-full w-full pt-17 max-w-boundary mx-auto">
                 <Routes>
-                  <Route path="/" element={<Contact />} />
+                  <Route path="/" element={<HomePage />} />
                   <Route path="/items/:id" element={<ItemsPage/>}/>
-                  <Route path= "/aboutus" element={<AboutUs/>}/>
+                  <Route path= "/about" element={<AboutUs/>}/>
+                  <Route path= "/contact" element={<Contact/>}/>
                 </Routes>
               </div>
             </LoaderProvider>
