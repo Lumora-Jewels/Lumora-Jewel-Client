@@ -4,6 +4,8 @@ import { LoaderProvider } from './conntexts/LoaderContext';
 import Footer from './components/footer/Footer';
 import HomePage from './pages/HomePage';
 import ItemsPage from './pages/ItemsPage';
+import AboutUs from './pages/AboutPage';
+import Contact from './pages/Contact';
 
 function App() {
   return (
@@ -15,8 +17,9 @@ function App() {
             <LoaderProvider>
               <div className="flex-grow bg-white h-full w-full pt-17 max-w-boundary mx-auto">
                 <Routes>
-                  <Route path="/" element={<HomePage />} />
+                  <Route path="/" element={<Contact />} />
                   <Route path="/items/:id" element={<ItemsPage/>}/>
+                  <Route path= "/aboutus" element={<AboutUs/>}/>
                 </Routes>
               </div>
             </LoaderProvider>
