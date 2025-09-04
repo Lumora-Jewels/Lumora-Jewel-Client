@@ -3,63 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Home, ChevronRight } from "lucide-react";
 import type { Category } from "../types/Category";
 import ItemsSection from "../sections/itemspagesections/ItemsSection";
+import { categoryService } from "../services/productService";
 
-const sampleCategories: Category[] = [
-  {
-    _id: "1",
-    name: "Diamond Rings",
-    parentCategoryId: null,
-    description: "Exquisite diamond rings crafted with precision",
-    image: "/api/placeholder/300/300",
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    _id: "2",
-    name: "Luxury Watches",
-    parentCategoryId: null,
-    description: "Premium timepieces for the discerning collector",
-    image: "/api/placeholder/300/300",
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    _id: "3",
-    name: "Gold Necklaces",
-    parentCategoryId: null,
-    description: "Elegant gold necklaces for every occasion",
-    image: "/api/placeholder/300/300",
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    _id: "4",
-    name: "Pearl Earrings",
-    parentCategoryId: null,
-    description: "Classic pearl earrings with timeless beauty",
-    image: "/api/placeholder/300/300",
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    _id: "5",
-    name: "Wedding Bands",
-    parentCategoryId: "1",
-    description: "Symbol of eternal love and commitment",
-    image: "/api/placeholder/300/300",
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    _id: "7",
-    name: "Tennis Bracelets",
-    parentCategoryId: null,
-    description: "Sparkling tennis bracelets with premium diamonds",
-    image: "/api/placeholder/300/300",
-    createdAt: new Date(),
-    updatedAt: new Date()
-  }
-];
 
 const ItemsPage: React.FC = () => {
   const { id: categoryId } = useParams<{ id: string }>();
@@ -69,18 +14,35 @@ const ItemsPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    if (categoryId) {
-      const currentCategory = sampleCategories.find(cat => cat._id === categoryId);
-      setCategory(currentCategory || null);
+    const loadCategory = async () => {
+      if (categoryId) {
+        try {
+          setLoading(true);
+          const categories = await categoryService.getCategories();
+          // Filter out categories without _id (old categories)
+          const validCategories = categories.filter(cat => cat._id);
+          const currentCategory = validCategories.find(cat => cat._id === categoryId);
+          setCategory(currentCategory || null);
 
-      if (currentCategory?.parentCategoryId) {
-        const parent = sampleCategories.find(cat => cat._id === currentCategory.parentCategoryId);
-        setParentCategory(parent || null);
+          if (currentCategory?.parentCategoryId) {
+            const parent = validCategories.find(cat => cat._id === currentCategory.parentCategoryId);
+            setParentCategory(parent || null);
+          } else {
+            setParentCategory(null);
+          }
+        } catch (error) {
+          console.error('Failed to load category:', error);
+          setCategory(null);
+          setParentCategory(null);
+        } finally {
+          setLoading(false);
+        }
       } else {
-        setParentCategory(null);
+        setLoading(false);
       }
-    }
-    setLoading(false);
+    };
+
+    loadCategory();
   }, [categoryId]);
 
   const handleGoBack = (): void => {
@@ -191,7 +153,7 @@ const ItemsPage: React.FC = () => {
               )}
 
               <div className="flex items-center gap-4 text-sm text-navy/60">
-                <span>Updated {category.updatedAt.toLocaleDateString()}</span>
+                <span>Updated {new Date(category.updatedAt).toLocaleDateString()}</span>
                 {parentCategory && (
                   <span>Part of {parentCategory.name}</span>
                 )}

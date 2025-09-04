@@ -1,0 +1,60 @@
+import type { Product } from './Products';
+
+export interface CartItem {
+  _id: string;
+  productId: string | Product; // Can be string ID or populated Product object
+  product?: Product; // Optional since backend doesn't populate this
+  quantity: number;
+  variant?: {
+    color?: string;
+    size?: string;
+    material?: string;
+  };
+  priceSnapshot: number;
+  selectedVariant?: {
+    color?: string;
+    size?: string;
+    material?: string;
+  };
+  addedAt?: Date;
+}
+
+export interface Cart {
+  _id: string;
+  userId: string;
+  items: CartItem[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface AddToCartRequest {
+  productId: string;
+  quantity: number;
+  selectedVariant?: {
+    color?: string;
+    size?: string;
+    material?: string;
+  };
+  price?: number;
+}
+
+export interface UpdateCartItemRequest {
+  quantity: number;
+  selectedVariant?: {
+    color?: string;
+    size?: string;
+    material?: string;
+  };
+}
+
+export interface CartContextType {
+  cart: Cart | null;
+  isLoading: boolean;
+  addToCart: (itemData: AddToCartRequest) => Promise<void>;
+  updateCartItem: (itemId: string, updateData: UpdateCartItemRequest) => Promise<void>;
+  removeFromCart: (itemId: string) => Promise<void>;
+  clearCart: () => Promise<void>;
+  loadCart: () => Promise<void>;
+  getCartItemCount: () => number;
+  getCartTotal: () => number;
+}

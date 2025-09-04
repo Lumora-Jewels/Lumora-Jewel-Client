@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Search, SlidersHorizontal, Grid3X3, List, ArrowUpDown } from "lucide-react";
 import type { ItemsSectionProps, Product, ProductFilters, ProductSearchState, ProductSortType } from "../../types/Products";
 import ProductCard from "../../components/itemspage/ProductCard";
+import { productService } from "../../services/productService";
 
 
 const sampleProducts: Product[] = [
@@ -111,7 +112,7 @@ const sampleProducts: Product[] = [
 ];
 
 const ItemsSection: React.FC<ItemsSectionProps> = ({ categoryId, className = "" }) => {
-  const [products] = useState<Product[]>(sampleProducts);
+  const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [searchState, setSearchState] = useState<ProductSearchState>({
     searchTerm: "",
@@ -122,8 +123,55 @@ const ItemsSection: React.FC<ItemsSectionProps> = ({ categoryId, className = "" 
   });
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [showFilters, setShowFilters] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string>("");
 
+  // Load products from API
   useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        setIsLoading(true);
+        setError("");
+        const response = await productService.getProducts({
+          categoryId,
+          page: 1,
+          limit: 100 // Load more products for client-side filtering
+        });
+        
+        // Handle different response structures
+        let productsData = [];
+        if (Array.isArray(response)) {
+          productsData = response;
+        } else if (response && response.products && Array.isArray(response.products)) {
+          productsData = response.products;
+        } else {
+          console.warn('Unexpected API response structure:', response);
+          productsData = [];
+        }
+        
+        setProducts(productsData);
+      } catch (err: any) {
+        console.error('Failed to load products:', err);
+        setError("Failed to load products. Please try again later.");
+        // Fallback to sample data
+        setProducts(sampleProducts);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadProducts();
+  }, [categoryId]);
+
+  // Filter and sort products
+  useEffect(() => {
+    // Safety check: ensure products is an array
+    if (!Array.isArray(products)) {
+      console.warn('Products is not an array:', products);
+      setFilteredProducts([]);
+      return;
+    }
+    
     let filtered = products.filter(product => product.categoryId === categoryId);
 
     if (searchState.searchTerm.trim()) {
@@ -348,7 +396,18 @@ const ItemsSection: React.FC<ItemsSectionProps> = ({ categoryId, className = "" 
             </p>
           )}
         </div>
-        {paginatedProducts.length > 0 ? (
+        {error && (
+          <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
+            {error}
+          </div>
+        )}
+
+        {isLoading ? (
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold mx-auto"></div>
+            <p className="text-navy/50 mt-4">Loading products...</p>
+          </div>
+        ) : paginatedProducts.length > 0 ? (
           <div className={`grid gap-6 mb-8 ${
             viewMode === "grid" 
               ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" 
