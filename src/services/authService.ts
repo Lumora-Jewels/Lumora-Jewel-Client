@@ -1,20 +1,20 @@
-import { api } from '../utils/api';
+import { authApi } from '../utils/api';
 import type { LoginRequest, RegisterRequest, AuthResponse, User } from '../types/Auth';
 
 export const authService = {
   // Login user
   login: async (credentials: LoginRequest): Promise<AuthResponse> => {
-    return api.post<AuthResponse>('/auth/login', credentials);
+    return authApi.post<AuthResponse>('/api/auth/login', credentials);
   },
 
   // Register user
   register: async (userData: RegisterRequest): Promise<AuthResponse> => {
-    return api.post<AuthResponse>('/auth/register', userData);
+    return authApi.post<AuthResponse>('/api/auth/register', userData);
   },
 
   // Get user profile
   getProfile: async (): Promise<User> => {
-    return api.get<User>('/auth/profile');
+    return authApi.get<User>('/api/auth/profile');
   },
 
   // Logout (client-side only, server doesn't need to be called)

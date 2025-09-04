@@ -1,4 +1,4 @@
-import { api } from '../utils/api';
+import { productApi, api } from '../utils/api';
 import type { Product } from '../types/Products';
 import type { Category } from '../types/Category';
 
@@ -14,27 +14,27 @@ export const productService = {
     page?: number;
     limit?: number;
   }): Promise<{ products: Product[]; total: number; page: number; totalPages: number }> => {
-    return api.get('/products', { params });
+    return productApi.get('/api/products', { params });
   },
 
   // Get product by ID
   getProductById: async (id: string): Promise<Product> => {
-    return api.get(`/products/${id}`);
+    return productApi.get(`/api/products/${id}`);
   },
 
   // Create product (admin only)
   createProduct: async (productData: Omit<Product, '_id' | 'createdAt' | 'updatedAt'>): Promise<Product> => {
-    return api.post('/products', productData);
+    return productApi.post('/api/products', productData);
   },
 
   // Update product (admin only)
   updateProduct: async (id: string, productData: Partial<Product>): Promise<Product> => {
-    return api.put(`/products/${id}`, productData);
+    return productApi.put(`/api/products/${id}`, productData);
   },
 
   // Delete product (admin only)
   deleteProduct: async (id: string): Promise<void> => {
-    return api.delete(`/products/${id}`);
+    return productApi.delete(`/api/products/${id}`);
   },
 };
 
