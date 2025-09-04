@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Heart, ShoppingCart, Eye, Star, Sparkles } from "lucide-react";
 import type { ProductCardProps } from "../../types/Products";
+import AddToCartButton from "../cart/AddToCartButton";
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
@@ -225,17 +226,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           </div>
         </div>
 
-        <button 
-          className={`w-full py-2 rounded-lg font-medium transition-all duration-300 ${
-            product.stock > 0
-              ? 'bg-gradient-to-r from-gold to-orange text-white hover:from-orange hover:to-gold hover:shadow-lg'
-              : 'bg-gray-200 text-gray-500 cursor-not-allowed'
-          }`}
-          onClick={handleAddToCart}
-          disabled={product.stock === 0}
-        >
-          {product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
-        </button>
+        <AddToCartButton product={product} />
       </div>
     </div>
   );

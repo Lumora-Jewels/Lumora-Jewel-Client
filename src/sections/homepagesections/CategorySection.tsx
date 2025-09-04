@@ -10,6 +10,7 @@ import "swiper/css/navigation";
 
 import type { Category, CategorySectionProps, FilterType } from "../../types/Category";
 import CategoryCard from "../../components/homepage/CategoryCard";
+import { categoryService } from "../../services/productService";
 
 const sampleCategories: Category[] = [
   { _id: "1", name: "Diamond Rings", parentCategoryId: null, description: "Exquisite diamond rings", image: "/api/placeholder/300/300", createdAt: new Date(), updatedAt: new Date() },
@@ -21,11 +22,37 @@ const sampleCategories: Category[] = [
 ];
 
 const CategorySection: React.FC<CategorySectionProps> = ({ className = "" }) => {
-  const [categories] = useState<Category[]>(sampleCategories);
-  const [filteredCategories, setFilteredCategories] = useState<Category[]>(sampleCategories);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [filteredCategories, setFilteredCategories] = useState<Category[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [selectedFilter, setSelectedFilter] = useState<FilterType>("all");
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string>("");
 
+  // Load categories from API
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        setIsLoading(true);
+        setError("");
+        const categoriesData = await categoryService.getCategories();
+        setCategories(categoriesData);
+        setFilteredCategories(categoriesData);
+      } catch (err: any) {
+        console.error('Failed to load categories:', err);
+        setError("Failed to load categories. Please try again later.");
+        // Fallback to sample data
+        setCategories(sampleCategories);
+        setFilteredCategories(sampleCategories);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadCategories();
+  }, []);
+
+  // Filter categories based on search and filter criteria
   useEffect(() => {
     let filtered = categories;
 
@@ -86,7 +113,18 @@ const CategorySection: React.FC<CategorySectionProps> = ({ className = "" }) => 
           </div>
         </div>
 
-        {filteredCategories.length > 0 ? (
+        {error && (
+          <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
+            {error}
+          </div>
+        )}
+
+        {isLoading ? (
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold mx-auto"></div>
+            <p className="text-navy/50 mt-4">Loading categories...</p>
+          </div>
+        ) : filteredCategories.length > 0 ? (
             <div>
                 <Swiper
                     modules={[Pagination, Autoplay]}
