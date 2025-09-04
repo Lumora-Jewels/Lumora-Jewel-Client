@@ -58,13 +58,17 @@ const CheckoutPage: React.FC = () => {
     }).format(price);
   };
 
+  const calculateSubtotal = (): number => {
+    if (!cart) return 0;
+    return cart.items.reduce((sum, item) => sum + (item.priceSnapshot * item.quantity), 0);
+  };
+
   const calculateTax = (): number => {
-    return cart ? cart.totalPrice * 0.08 : 0; // 8% tax
+    return calculateSubtotal() * 0.08; // 8% tax
   };
 
   const calculateTotal = (): number => {
-    if (!cart) return 0;
-    return cart.totalPrice + calculateTax();
+    return calculateSubtotal() + calculateTax();
   };
 
   const handleSubmitOrder = async (e: React.FormEvent) => {
@@ -80,11 +84,11 @@ const CheckoutPage: React.FC = () => {
       const orderData: CreateOrderRequest = {
         items: cart.items.map(item => ({
           productId: item.productId,
-          productName: item.product.name,
-          productImage: item.product.images[0] || '',
+          productName: item.product?.name || `Product ${item.productId}`,
+          productImage: item.product?.images?.[0] || '',
           quantity: item.quantity,
-          price: item.product.price,
-          selectedVariant: item.selectedVariant,
+          price: item.priceSnapshot,
+          selectedVariant: item.variant,
         })),
         shippingAddress,
         paymentMethod,
@@ -400,10 +404,10 @@ const CheckoutPage: React.FC = () => {
                 {cart.items.map((item) => (
                   <div key={item._id} className="flex items-center gap-3">
                     <div className="w-12 h-12 bg-gradient-to-br from-gold/20 to-orange/20 rounded-lg flex items-center justify-center">
-                      {item.product.images && item.product.images.length > 0 ? (
+                      {item.product?.images && item.product.images.length > 0 ? (
                         <img
                           src={item.product.images[0]}
-                          alt={item.product.name}
+                          alt={item.product?.name || 'Product'}
                           className="w-full h-full object-cover rounded-lg"
                         />
                       ) : (
@@ -411,11 +415,11 @@ const CheckoutPage: React.FC = () => {
                       )}
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-medium text-navy text-sm">{item.product.name}</h4>
+                      <h4 className="font-medium text-navy text-sm">{item.product?.name || `Product ${item.productId}`}</h4>
                       <p className="text-xs text-navy/60">Qty: {item.quantity}</p>
                     </div>
                     <span className="font-semibold text-navy">
-                      {formatPrice(item.product.price * item.quantity)}
+                      {formatPrice(item.priceSnapshot * item.quantity)}
                     </span>
                   </div>
                 ))}
@@ -424,7 +428,7 @@ const CheckoutPage: React.FC = () => {
               <div className="space-y-3 border-t border-gold/20 pt-4">
                 <div className="flex justify-between">
                   <span className="text-navy/70">Subtotal</span>
-                  <span className="font-semibold text-navy">{formatPrice(cart.totalPrice)}</span>
+                  <span className="font-semibold text-navy">{formatPrice(calculateSubtotal())}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-navy/70">Shipping</span>

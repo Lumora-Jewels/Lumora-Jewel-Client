@@ -8,6 +8,10 @@ const CartPage: React.FC = () => {
   const { cart, isLoading, updateCartItem, removeFromCart, clearCart } = useCart();
   const { isAuthenticated } = useAuth();
 
+  // Calculate totals from cart items
+  const totalItems = cart?.items.reduce((sum, item) => sum + item.quantity, 0) || 0;
+  const totalPrice = cart?.items.reduce((sum, item) => sum + (item.priceSnapshot * item.quantity), 0) || 0;
+
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-light via-white to-gold/5 flex items-center justify-center">
@@ -125,10 +129,10 @@ const CartPage: React.FC = () => {
                   >
                     {/* Product Image */}
                     <div className="w-20 h-20 bg-gradient-to-br from-gold/20 to-orange/20 rounded-lg flex items-center justify-center">
-                      {item.product.images && item.product.images.length > 0 ? (
+                      {item.product?.images && item.product.images.length > 0 ? (
                         <img
                           src={item.product.images[0]}
-                          alt={item.product.name}
+                          alt={item.product.name || 'Product'}
                           className="w-full h-full object-cover rounded-lg"
                         />
                       ) : (
@@ -138,27 +142,26 @@ const CartPage: React.FC = () => {
 
                     {/* Product Details */}
                     <div className="flex-1">
-                      <h3 className="font-semibold text-navy mb-1">{item.product.name}</h3>
-                      {item.selectedVariant && (
+                      <h3 className="font-semibold text-navy mb-1">
+                        {item.product?.name || `Product ${item.productId}`}
+                      </h3>
+                      {item.variant && (
                         <div className="flex gap-2 mb-2">
-                          {item.selectedVariant.color && (
+                          {item.variant.color && (
                             <span className="px-2 py-1 bg-gold/10 text-gold text-xs rounded-full">
-                              {item.selectedVariant.color}
+                              {item.variant.color}
                             </span>
                           )}
-                          {item.selectedVariant.size && (
+                          {item.variant.size && (
                             <span className="px-2 py-1 bg-navy/10 text-navy text-xs rounded-full">
-                              {item.selectedVariant.size}
-                            </span>
-                          )}
-                          {item.selectedVariant.material && (
-                            <span className="px-2 py-1 bg-orange/10 text-orange text-xs rounded-full">
-                              {item.selectedVariant.material}
+                              {item.variant.size}
                             </span>
                           )}
                         </div>
                       )}
-                      <p className="text-sm text-navy/60">SKU: {item.product.SKU}</p>
+                      <p className="text-sm text-navy/60">
+                        SKU: {item.product?.SKU || 'N/A'}
+                      </p>
                     </div>
 
                     {/* Quantity Controls */}
@@ -175,7 +178,7 @@ const CartPage: React.FC = () => {
                       </span>
                       <button
                         onClick={() => handleQuantityChange(item._id, item.quantity + 1)}
-                        disabled={item.quantity >= item.product.stock}
+                        disabled={item.quantity >= 99} // Max quantity limit
                         className="p-1 border border-gold/20 rounded hover:bg-gold/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
                       >
                         <Plus size={16} />
@@ -185,10 +188,10 @@ const CartPage: React.FC = () => {
                     {/* Price */}
                     <div className="text-right">
                       <p className="font-semibold text-navy">
-                        {formatPrice(item.product.price * item.quantity)}
+                        {formatPrice(item.priceSnapshot * item.quantity)}
                       </p>
                       <p className="text-sm text-navy/60">
-                        {formatPrice(item.product.price)} each
+                        {formatPrice(item.priceSnapshot)} each
                       </p>
                     </div>
 
@@ -213,7 +216,7 @@ const CartPage: React.FC = () => {
               <div className="space-y-3 mb-6">
                 <div className="flex justify-between">
                   <span className="text-navy/70">Subtotal</span>
-                  <span className="font-semibold text-navy">{formatPrice(cart.totalPrice)}</span>
+                  <span className="font-semibold text-navy">{formatPrice(totalPrice)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-navy/70">Shipping</span>
@@ -226,7 +229,7 @@ const CartPage: React.FC = () => {
                 <div className="border-t border-gold/20 pt-3">
                   <div className="flex justify-between">
                     <span className="text-lg font-bold text-navy">Total</span>
-                    <span className="text-lg font-bold text-gold">{formatPrice(cart.totalPrice)}</span>
+                    <span className="text-lg font-bold text-gold">{formatPrice(totalPrice)}</span>
                   </div>
                 </div>
               </div>

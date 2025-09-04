@@ -3,22 +3,26 @@ import type { Product } from './Products';
 export interface CartItem {
   _id: string;
   productId: string;
-  product: Product;
+  product?: Product; // Optional since backend doesn't populate this
   quantity: number;
+  variant?: {
+    color?: string;
+    size?: string;
+    material?: string;
+  };
+  priceSnapshot: number;
   selectedVariant?: {
     color?: string;
     size?: string;
     material?: string;
   };
-  addedAt: Date;
+  addedAt?: Date;
 }
 
 export interface Cart {
   _id: string;
   userId: string;
   items: CartItem[];
-  totalItems: number;
-  totalPrice: number;
   createdAt: Date;
   updatedAt: Date;
 }
