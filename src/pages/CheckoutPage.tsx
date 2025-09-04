@@ -81,63 +81,39 @@ const CheckoutPage: React.FC = () => {
 
     try {
       // Create order
-      const orderData: CreateOrderRequest = {
+      const orderData = {
+        userId: user._id,
         items: cart.items.map(item => ({
-          productId: item.productId,
-          productName: (typeof item.productId === 'object' ? item.productId.name : null) || `Product ${item.productId}`,
-          productImage: (typeof item.productId === 'object' ? item.productId.images?.[0] : null) || '',
+          productId: typeof item.productId === 'object' ? item.productId._id : item.productId,
           quantity: item.quantity,
-          price: item.priceSnapshot,
-          selectedVariant: item.variant,
+          priceSnapshot: item.priceSnapshot,
+          variant: item.variant,
         })),
-        shippingAddress,
+        totalAmount: calculateTotal(),
+        shippingAddress: {
+          label: `${shippingAddress.firstName} ${shippingAddress.lastName}`,
+          street: shippingAddress.address,
+          city: shippingAddress.city,
+          state: shippingAddress.state,
+          postalCode: shippingAddress.zipCode,
+          country: shippingAddress.country,
+        },
         paymentMethod,
       };
 
-      const order = await orderService.createOrder(orderData);
+      const order = await orderService.createOrder(orderData as any);
       setOrderId(order._id);
 
-      if (paymentMethod === 'cash_on_delivery') {
-        // For COD, create a pending payment record
-        const paymentData: CreatePaymentRequest = {
-          orderId: order._id,
-          amount: calculateTotal(),
-          paymentMethod,
-          paymentDetails: {
-            billingAddress: shippingAddress,
-            note: 'Payment will be collected on delivery',
-          },
-        };
+      // Create payment record
+      const paymentData = {
+        userId: user._id,
+        orderId: order._id,
+        amount: calculateTotal(),
+        currency: 'usd',
+        method: paymentMethod === 'cash_on_delivery' ? 'cash_on_delivery' : 'card',
+      };
 
-        await paymentService.createPayment(paymentData);
-
-        // Update payment status to pending for COD
-        await paymentService.updatePaymentStatus({
-          status: 'pending',
-          transactionId: `cod_${Date.now()}`,
-          gatewayResponse: { method: 'cash_on_delivery' },
-        });
-      } else {
-        // For other payment methods, process payment normally
-        const paymentData: CreatePaymentRequest = {
-          orderId: order._id,
-          amount: calculateTotal(),
-          paymentMethod,
-          paymentDetails: {
-            ...paymentDetails,
-            billingAddress: shippingAddress,
-          },
-        };
-
-        await paymentService.createPayment(paymentData);
-
-        // Update payment status to completed (simulating successful payment)
-        await paymentService.updatePaymentStatus({
-          status: 'completed',
-          transactionId: `txn_${Date.now()}`,
-          gatewayResponse: { success: true },
-        });
-      }
+      await paymentService.createPayment(paymentData);
 
       // Clear cart
       await clearCart();

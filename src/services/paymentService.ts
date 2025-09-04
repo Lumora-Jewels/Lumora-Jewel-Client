@@ -1,15 +1,15 @@
-import { api } from '../utils/api';
+import { paymentApi } from '../utils/api';
 import type { Payment, CreatePaymentRequest, UpdatePaymentStatusRequest } from '../types/Payment';
 
 export const paymentService = {
   // Create payment
   createPayment: async (paymentData: CreatePaymentRequest): Promise<Payment> => {
-    return api.post('/payments', paymentData);
+    return paymentApi.post('/api/payments', paymentData);
   },
 
   // Update payment status
   updatePaymentStatus: async (statusData: UpdatePaymentStatusRequest): Promise<Payment> => {
-    return api.put('/payments/status', statusData);
+    return paymentApi.put('/api/payments/status', statusData);
   },
 
   // Get all payments
@@ -20,11 +20,11 @@ export const paymentService = {
     page?: number;
     limit?: number;
   }): Promise<{ payments: Payment[]; total: number; page: number; totalPages: number }> => {
-    return api.get('/payments', { params });
+    return paymentApi.get('/api/payments', { params });
   },
 
   // Get payment by ID
   getPaymentById: async (id: string): Promise<Payment> => {
-    return api.get(`/payments/${id}`);
+    return paymentApi.get(`/api/payments/${id}`);
   },
 };
