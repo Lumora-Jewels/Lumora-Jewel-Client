@@ -8,7 +8,7 @@ import NotificationDropdown from "../notifications/NotificationDropdown";
 
 const navItems = [
   { label: "Home", href: "/" },
-  { label: "Shop", href: "shop" },
+  { label: "Shop", href: "/shop" },
   { label: "Collections", href: "/collections" },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
@@ -17,7 +17,6 @@ const navItems = [
 const NavBar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const { user, isAuthenticated, logout } = useAuth();
   const { getCartItemCount } = useCart();
 
@@ -25,19 +24,19 @@ const NavBar = () => {
     <nav className="fixed top-0 left-0 w-full z-40 bg-navy/30 backdrop-blur-xl shadow-md">
       <div className="max-w-boundary mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          <a href="/" className="text-2xl font-bold text-navy hover:text-orange">
+          <Link to="/" className="text-2xl font-bold text-navy hover:text-orange">
             Lumora
-          </a>
+          </Link>
 
           <div className="hidden md:flex space-x-8">
             {navItems.map((item) => (
-              <a
+              <Link
                 key={item.label}
-                href={item.href}
+                to={item.href}
                 className="text-navy font-medium hover:text-orange transition-colors duration-200"
               >
                 {item.label}
-              </a>
+              </Link>
             ))}
           </div>
 
@@ -105,14 +104,14 @@ const NavBar = () => {
         <div className="md:hidden bg-light/95 backdrop-blur-lg shadow-lg">
           <div className="px-4 pt-4 pb-6 space-y-3">
             {navItems.map((item) => (
-              <a
+              <Link
                 key={item.label}
-                href={item.href}
+                to={item.href}
                 className="block text-navy font-medium hover:text-orange transition-colors duration-200"
                 onClick={() => setIsOpen(false)}
               >
                 {item.label}
-              </a>
+              </Link>
             ))}
             
             <div className="border-t border-navy/20 pt-4 mt-4">
@@ -161,7 +160,7 @@ const NavBar = () => {
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
-        initialMode={authMode}
+        initialMode="login"
       />
     </nav>
   );
