@@ -137,7 +137,19 @@ const ItemsSection: React.FC<ItemsSectionProps> = ({ categoryId, className = "" 
           page: 1,
           limit: 100 // Load more products for client-side filtering
         });
-        setProducts(response.products);
+        
+        // Handle different response structures
+        let productsData = [];
+        if (Array.isArray(response)) {
+          productsData = response;
+        } else if (response && response.products && Array.isArray(response.products)) {
+          productsData = response.products;
+        } else {
+          console.warn('Unexpected API response structure:', response);
+          productsData = [];
+        }
+        
+        setProducts(productsData);
       } catch (err: any) {
         console.error('Failed to load products:', err);
         setError("Failed to load products. Please try again later.");
@@ -153,6 +165,13 @@ const ItemsSection: React.FC<ItemsSectionProps> = ({ categoryId, className = "" 
 
   // Filter and sort products
   useEffect(() => {
+    // Safety check: ensure products is an array
+    if (!Array.isArray(products)) {
+      console.warn('Products is not an array:', products);
+      setFilteredProducts([]);
+      return;
+    }
+    
     let filtered = products.filter(product => product.categoryId === categoryId);
 
     if (searchState.searchTerm.trim()) {

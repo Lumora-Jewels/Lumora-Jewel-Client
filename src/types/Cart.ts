@@ -31,6 +31,7 @@ export interface AddToCartRequest {
     size?: string;
     material?: string;
   };
+  price?: number;
 }
 
 export interface UpdateCartItemRequest {

@@ -49,6 +49,7 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({ product, className = 
         productId: product._id,
         quantity,
         selectedVariant: Object.keys(selectedVariant).length > 0 ? selectedVariant : undefined,
+        price: product.price,
       };
 
       await addToCart(cartItem);
@@ -162,17 +163,17 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({ product, className = 
           <button
             onClick={() => handleQuantityChange(quantity - 1)}
             disabled={quantity <= 1}
-            className="p-2 border border-gold/20 rounded-lg hover:bg-gold/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+            className="p-2 border border-gold/20 rounded-lg hover:bg-gold/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-navy hover:border-gold"
           >
             <Minus size={16} />
           </button>
-          <span className="px-4 py-2 border border-gold/20 rounded-lg bg-white min-w-[60px] text-center">
+          <span className="px-4 py-2 border border-gold/20 rounded-lg bg-white min-w-[60px] text-center text-navy font-medium shadow-sm">
             {quantity}
           </span>
           <button
             onClick={() => handleQuantityChange(quantity + 1)}
             disabled={quantity >= product.stock}
-            className="p-2 border border-gold/20 rounded-lg hover:bg-gold/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+            className="p-2 border border-gold/20 rounded-lg hover:bg-gold/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-navy hover:border-gold"
           >
             <Plus size={16} />
           </button>

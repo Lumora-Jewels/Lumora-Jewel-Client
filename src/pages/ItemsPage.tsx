@@ -19,11 +19,13 @@ const ItemsPage: React.FC = () => {
         try {
           setLoading(true);
           const categories = await categoryService.getCategories();
-          const currentCategory = categories.find(cat => cat._id === categoryId);
+          // Filter out categories without _id (old categories)
+          const validCategories = categories.filter(cat => cat._id);
+          const currentCategory = validCategories.find(cat => cat._id === categoryId);
           setCategory(currentCategory || null);
 
           if (currentCategory?.parentCategoryId) {
-            const parent = categories.find(cat => cat._id === currentCategory.parentCategoryId);
+            const parent = validCategories.find(cat => cat._id === currentCategory.parentCategoryId);
             setParentCategory(parent || null);
           } else {
             setParentCategory(null);
@@ -151,7 +153,7 @@ const ItemsPage: React.FC = () => {
               )}
 
               <div className="flex items-center gap-4 text-sm text-navy/60">
-                <span>Updated {category.updatedAt.toLocaleDateString()}</span>
+                <span>Updated {new Date(category.updatedAt).toLocaleDateString()}</span>
                 {parentCategory && (
                   <span>Part of {parentCategory.name}</span>
                 )}

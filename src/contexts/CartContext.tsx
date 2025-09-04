@@ -42,7 +42,20 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     
     try {
       setIsLoading(true);
-      const updatedCart = await cartService.addItem(itemData);
+      
+      // Transform the data to match backend expectations
+      const cartRequest = {
+        userId: user._id,
+        productId: itemData.productId,
+        quantity: itemData.quantity,
+        variant: itemData.selectedVariant ? {
+          color: itemData.selectedVariant.color,
+          size: itemData.selectedVariant.size
+        } : undefined,
+        priceSnapshot: itemData.price || 0
+      };
+      
+      const updatedCart = await cartService.addItem(cartRequest);
       setCart(updatedCart);
     } catch (error) {
       throw error;

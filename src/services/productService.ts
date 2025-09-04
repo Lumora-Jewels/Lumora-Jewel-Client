@@ -14,7 +14,27 @@ export const productService = {
     page?: number;
     limit?: number;
   }): Promise<{ products: Product[]; total: number; page: number; totalPages: number }> => {
-    return productApi.get('/api/products', { params });
+    const response = await productApi.get('/api/products', { params });
+    
+    // Handle different response structures
+    if (Array.isArray(response)) {
+      return {
+        products: response,
+        total: response.length,
+        page: 1,
+        totalPages: 1
+      };
+    } else if (response && response.products && Array.isArray(response.products)) {
+      return response;
+    } else {
+      // Fallback structure
+      return {
+        products: [],
+        total: 0,
+        page: 1,
+        totalPages: 1
+      };
+    }
   },
 
   // Get product by ID

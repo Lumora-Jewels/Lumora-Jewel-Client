@@ -15,7 +15,9 @@ const CollectionsPage: React.FC = () => {
       try {
         setLoading(true);
         const categoriesData = await categoryService.getCategories();
-        setCategories(categoriesData);
+        // Filter out categories without _id (old categories)
+        const validCategories = categoriesData.filter(cat => cat._id);
+        setCategories(validCategories);
       } catch (error) {
         console.error('Failed to load categories:', error);
       } finally {

@@ -36,8 +36,10 @@ const CategorySection: React.FC<CategorySectionProps> = ({ className = "" }) => 
         setIsLoading(true);
         setError("");
         const categoriesData = await categoryService.getCategories();
-        setCategories(categoriesData);
-        setFilteredCategories(categoriesData);
+        // Filter out categories without _id (old categories)
+        const validCategories = categoriesData.filter(cat => cat._id);
+        setCategories(validCategories);
+        setFilteredCategories(validCategories);
       } catch (err: any) {
         console.error('Failed to load categories:', err);
         setError("Failed to load categories. Please try again later.");
