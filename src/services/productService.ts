@@ -41,26 +41,26 @@ export const productService = {
 export const categoryService = {
   // Get all categories
   getCategories: async (): Promise<Category[]> => {
-    return api.get('/categories');
+    return api.get('/api/categories');
   },
 
   // Get category by ID
   getCategoryById: async (id: string): Promise<Category> => {
-    return api.get(`/categories/${id}`);
+    return api.get(`/api/categories/${id}`);
   },
 
   // Create category (admin only)
   createCategory: async (categoryData: Omit<Category, '_id' | 'createdAt' | 'updatedAt'>): Promise<Category> => {
-    return api.post('/categories', categoryData);
+    return api.post('/api/categories', categoryData);
   },
 
   // Update category (admin only)
   updateCategory: async (id: string, categoryData: Partial<Category>): Promise<Category> => {
-    return api.put(`/categories/${id}`, categoryData);
+    return api.put(`/api/categories/${id}`, categoryData);
   },
 
   // Delete category (admin only)
   deleteCategory: async (id: string): Promise<void> => {
-    return api.delete(`/categories/${id}`);
+    return api.delete(`/api/categories/${id}`);
   },
 };
