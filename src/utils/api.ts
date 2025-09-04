@@ -161,4 +161,55 @@ export const cartApi = {
     cartApiClient.patch(url, data, config).then((response: any) => response.data),
 };
 
+export const orderApi = {
+  get: <T = any>(url: string, config?: AxiosRequestConfig): Promise<T> =>
+    orderApiClient.get(url, config).then((response: any) => response.data),
+  
+  post: <T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> =>
+    orderApiClient.post(url, data, config).then((response: any) => response.data),
+  
+  put: <T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> =>
+    orderApiClient.put(url, data, config).then((response: any) => response.data),
+  
+  delete: <T = any>(url: string, config?: AxiosRequestConfig): Promise<T> =>
+    orderApiClient.delete(url, config).then((response: any) => response.data),
+  
+  patch: <T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> =>
+    orderApiClient.patch(url, data, config).then((response: any) => response.data),
+};
+
+export const paymentApi = {
+  get: <T = any>(url: string, config?: AxiosRequestConfig): Promise<T> =>
+    paymentApiClient.get(url, config).then((response: any) => response.data),
+  
+  post: <T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> =>
+    paymentApiClient.post(url, data, config).then((response: any) => response.data),
+  
+  put: <T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> =>
+    paymentApiClient.put(url, data, config).then((response: any) => response.data),
+  
+  delete: <T = any>(url: string, config?: AxiosRequestConfig): Promise<T> =>
+    paymentApiClient.delete(url, config).then((response: any) => response.data),
+  
+  patch: <T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> =>
+    paymentApiClient.patch(url, data, config).then((response: any) => response.data),
+};
+
+export const notificationApi = {
+  get: <T = any>(url: string, config?: AxiosRequestConfig): Promise<T> =>
+    notificationApiClient.get(url, config).then((response: any) => response.data),
+  
+  post: <T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> =>
+    notificationApiClient.post(url, data, config).then((response: any) => response.data),
+  
+  put: <T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> =>
+    notificationApiClient.put(url, data, config).then((response: any) => response.data),
+  
+  delete: <T = any>(url: string, config?: AxiosRequestConfig): Promise<T> =>
+    notificationApiClient.delete(url, config).then((response: any) => response.data),
+  
+  patch: <T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> =>
+    notificationApiClient.patch(url, data, config).then((response: any) => response.data),
+};
+
 export default categoryApiClient;

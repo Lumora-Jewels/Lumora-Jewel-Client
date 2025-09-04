@@ -129,10 +129,10 @@ const CartPage: React.FC = () => {
                   >
                     {/* Product Image */}
                     <div className="w-20 h-20 bg-gradient-to-br from-gold/20 to-orange/20 rounded-lg flex items-center justify-center">
-                      {item.product?.images && item.product.images.length > 0 ? (
+                      {item.productId?.images && item.productId.images.length > 0 ? (
                         <img
-                          src={item.product.images[0]}
-                          alt={item.product.name || 'Product'}
+                          src={item.productId.images[0]}
+                          alt={item.productId.name || 'Product'}
                           className="w-full h-full object-cover rounded-lg"
                         />
                       ) : (
@@ -143,7 +143,7 @@ const CartPage: React.FC = () => {
                     {/* Product Details */}
                     <div className="flex-1">
                       <h3 className="font-semibold text-navy mb-1">
-                        {item.product?.name || `Product ${item.productId}`}
+                        {item.productId?.name || `Product ${item.productId}`}
                       </h3>
                       {item.variant && (
                         <div className="flex gap-2 mb-2">
@@ -160,7 +160,7 @@ const CartPage: React.FC = () => {
                         </div>
                       )}
                       <p className="text-sm text-navy/60">
-                        SKU: {item.product?.SKU || 'N/A'}
+                        SKU: {item.productId?.SKU || 'N/A'}
                       </p>
                     </div>
 
@@ -178,7 +178,7 @@ const CartPage: React.FC = () => {
                       </span>
                       <button
                         onClick={() => handleQuantityChange(item._id, item.quantity + 1)}
-                        disabled={item.quantity >= 99} // Max quantity limit
+                        disabled={item.quantity >= (item.productId?.stock || 99)} // Use product stock or max limit
                         className="p-1 border border-gold/20 rounded hover:bg-gold/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
                       >
                         <Plus size={16} />

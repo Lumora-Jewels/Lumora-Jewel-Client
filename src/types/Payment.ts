@@ -4,7 +4,7 @@ export interface Payment {
   userId: string;
   amount: number;
   currency: string;
-  paymentMethod: 'credit_card' | 'debit_card' | 'paypal' | 'stripe' | 'bank_transfer';
+  paymentMethod: 'credit_card' | 'debit_card' | 'paypal' | 'stripe' | 'bank_transfer' | 'cash_on_delivery';
   status: 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled' | 'refunded';
   transactionId?: string;
   gatewayResponse?: any;
@@ -30,6 +30,7 @@ export interface CreatePaymentRequest {
       zipCode: string;
       country: string;
     };
+    note?: string;
   };
 }
 

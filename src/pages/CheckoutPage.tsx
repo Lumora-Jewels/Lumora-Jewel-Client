@@ -5,7 +5,7 @@ import { orderService } from '../services/orderService';
 import { paymentService } from '../services/paymentService';
 import type { CreateOrderRequest, ShippingAddress } from '../types/Order';
 import type { CreatePaymentRequest } from '../types/Payment';
-import { ArrowLeft, CreditCard, Lock } from 'lucide-react';
+import { ArrowLeft, CreditCard, Lock, Banknote } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const CheckoutPage: React.FC = () => {
@@ -27,7 +27,7 @@ const CheckoutPage: React.FC = () => {
     phone: '',
   });
 
-  const [paymentMethod, setPaymentMethod] = useState<'credit_card' | 'debit_card' | 'paypal'>('credit_card');
+  const [paymentMethod, setPaymentMethod] = useState<'credit_card' | 'debit_card' | 'paypal' | 'cash_on_delivery'>('credit_card');
   const [paymentDetails, setPaymentDetails] = useState({
     cardNumber: '',
     expiryDate: '',
@@ -84,8 +84,8 @@ const CheckoutPage: React.FC = () => {
       const orderData: CreateOrderRequest = {
         items: cart.items.map(item => ({
           productId: item.productId,
-          productName: item.product?.name || `Product ${item.productId}`,
-          productImage: item.product?.images?.[0] || '',
+          productName: (typeof item.productId === 'object' ? item.productId.name : null) || `Product ${item.productId}`,
+          productImage: (typeof item.productId === 'object' ? item.productId.images?.[0] : null) || '',
           quantity: item.quantity,
           price: item.priceSnapshot,
           selectedVariant: item.variant,
@@ -97,25 +97,47 @@ const CheckoutPage: React.FC = () => {
       const order = await orderService.createOrder(orderData);
       setOrderId(order._id);
 
-      // Create payment
-      const paymentData: CreatePaymentRequest = {
-        orderId: order._id,
-        amount: calculateTotal(),
-        paymentMethod,
-        paymentDetails: {
-          ...paymentDetails,
-          billingAddress: shippingAddress,
-        },
-      };
+      if (paymentMethod === 'cash_on_delivery') {
+        // For COD, create a pending payment record
+        const paymentData: CreatePaymentRequest = {
+          orderId: order._id,
+          amount: calculateTotal(),
+          paymentMethod,
+          paymentDetails: {
+            billingAddress: shippingAddress,
+            note: 'Payment will be collected on delivery',
+          },
+        };
 
-      await paymentService.createPayment(paymentData);
+        await paymentService.createPayment(paymentData);
 
-      // Update payment status to completed (simulating successful payment)
-      await paymentService.updatePaymentStatus({
-        status: 'completed',
-        transactionId: `txn_${Date.now()}`,
-        gatewayResponse: { success: true },
-      });
+        // Update payment status to pending for COD
+        await paymentService.updatePaymentStatus({
+          status: 'pending',
+          transactionId: `cod_${Date.now()}`,
+          gatewayResponse: { method: 'cash_on_delivery' },
+        });
+      } else {
+        // For other payment methods, process payment normally
+        const paymentData: CreatePaymentRequest = {
+          orderId: order._id,
+          amount: calculateTotal(),
+          paymentMethod,
+          paymentDetails: {
+            ...paymentDetails,
+            billingAddress: shippingAddress,
+          },
+        };
+
+        await paymentService.createPayment(paymentData);
+
+        // Update payment status to completed (simulating successful payment)
+        await paymentService.updatePaymentStatus({
+          status: 'completed',
+          transactionId: `txn_${Date.now()}`,
+          gatewayResponse: { success: true },
+        });
+      }
 
       // Clear cart
       await clearCart();
@@ -136,13 +158,32 @@ const CheckoutPage: React.FC = () => {
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Lock size={32} className="text-green-600" />
             </div>
-            <h2 className="text-2xl font-bold text-navy mb-4">Order Successful!</h2>
+            <h2 className="text-2xl font-bold text-navy mb-4">
+              {paymentMethod === 'cash_on_delivery' ? 'Order Placed Successfully!' : 'Order Successful!'}
+            </h2>
             <p className="text-navy/70 mb-4">
               Thank you for your purchase. Your order #{orderId} has been confirmed.
             </p>
-            <p className="text-sm text-navy/60 mb-6">
-              You will receive an email confirmation shortly.
-            </p>
+            {paymentMethod === 'cash_on_delivery' ? (
+              <div className="bg-gold/10 border border-gold/20 rounded-lg p-4 mb-6">
+                <div className="flex items-start gap-3">
+                  <Banknote size={20} className="text-gold mt-0.5" />
+                  <div className="text-left">
+                    <p className="text-sm font-semibold text-navy mb-1">Cash on Delivery</p>
+                    <p className="text-sm text-navy/70 mb-2">
+                      Please have the exact amount ready: <span className="font-semibold text-gold">{formatPrice(calculateTotal())}</span>
+                    </p>
+                    <p className="text-sm text-navy/70">
+                      Our delivery person will collect payment when your order arrives.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <p className="text-sm text-navy/60 mb-6">
+                You will receive an email confirmation shortly.
+              </p>
+            )}
             <Link
               to="/"
               className="bg-gold text-white px-6 py-3 rounded-lg font-semibold hover:bg-orange transition-all duration-300"
@@ -335,9 +376,22 @@ const CheckoutPage: React.FC = () => {
                   <div className="w-5 h-5 bg-blue-600 rounded"></div>
                   <span className="text-navy font-medium">PayPal</span>
                 </label>
+                
+                <label className="flex items-center gap-3 p-4 border border-gold/20 rounded-lg cursor-pointer hover:bg-gold/5 transition-all duration-200">
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="cash_on_delivery"
+                    checked={paymentMethod === 'cash_on_delivery'}
+                    onChange={(e) => setPaymentMethod(e.target.value as any)}
+                    className="text-gold"
+                  />
+                  <Banknote size={20} className="text-navy" />
+                  <span className="text-navy font-medium">Cash on Delivery</span>
+                </label>
               </div>
 
-              {paymentMethod !== 'paypal' && (
+              {paymentMethod !== 'paypal' && paymentMethod !== 'cash_on_delivery' && (
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-semibold text-navy mb-2">Card Number</label>
@@ -392,6 +446,23 @@ const CheckoutPage: React.FC = () => {
                   </div>
                 </div>
               )}
+
+              {paymentMethod === 'cash_on_delivery' && (
+                <div className="bg-gold/10 border border-gold/20 rounded-lg p-4">
+                  <div className="flex items-start gap-3">
+                    <Banknote size={20} className="text-gold mt-0.5" />
+                    <div>
+                      <h3 className="font-semibold text-navy mb-2">Cash on Delivery</h3>
+                      <p className="text-sm text-navy/70 mb-2">
+                        Pay with cash when your order is delivered to your doorstep.
+                      </p>
+                      <p className="text-sm text-navy/70">
+                        Please have the exact amount ready: <span className="font-semibold text-gold">{formatPrice(calculateTotal())}</span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -404,10 +475,10 @@ const CheckoutPage: React.FC = () => {
                 {cart.items.map((item) => (
                   <div key={item._id} className="flex items-center gap-3">
                     <div className="w-12 h-12 bg-gradient-to-br from-gold/20 to-orange/20 rounded-lg flex items-center justify-center">
-                      {item.product?.images && item.product.images.length > 0 ? (
+                      {(typeof item.productId === 'object' ? item.productId.images : null) && (typeof item.productId === 'object' ? item.productId.images.length > 0 : false) ? (
                         <img
-                          src={item.product.images[0]}
-                          alt={item.product?.name || 'Product'}
+                          src={(typeof item.productId === 'object' ? item.productId.images[0] : '')}
+                          alt={(typeof item.productId === 'object' ? item.productId.name : null) || 'Product'}
                           className="w-full h-full object-cover rounded-lg"
                         />
                       ) : (
@@ -415,7 +486,7 @@ const CheckoutPage: React.FC = () => {
                       )}
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-medium text-navy text-sm">{item.product?.name || `Product ${item.productId}`}</h4>
+                      <h4 className="font-medium text-navy text-sm">{(typeof item.productId === 'object' ? item.productId.name : null) || `Product ${item.productId}`}</h4>
                       <p className="text-xs text-navy/60">Qty: {item.quantity}</p>
                     </div>
                     <span className="font-semibold text-navy">

@@ -2,7 +2,7 @@ import type { Product } from './Products';
 
 export interface CartItem {
   _id: string;
-  productId: string;
+  productId: string | Product; // Can be string ID or populated Product object
   product?: Product; // Optional since backend doesn't populate this
   quantity: number;
   variant?: {
