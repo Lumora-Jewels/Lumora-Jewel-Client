@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/your-org/lumora-jewel-client.git'
+                git branch: 'main', url: 'https://github.com/Lumora-Jewels/Lumora-Jewel-Client.git'
             }
         }
 
