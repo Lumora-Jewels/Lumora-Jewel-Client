@@ -9,7 +9,6 @@ const CartPage: React.FC = () => {
   const { isAuthenticated } = useAuth();
 
   // Calculate totals from cart items
-  const totalItems = cart?.items.reduce((sum, item) => sum + item.quantity, 0) || 0;
   const totalPrice = cart?.items.reduce((sum, item) => sum + (item.priceSnapshot * item.quantity), 0) || 0;
 
   if (!isAuthenticated) {
@@ -129,7 +128,7 @@ const CartPage: React.FC = () => {
                   >
                     {/* Product Image */}
                     <div className="w-20 h-20 bg-gradient-to-br from-gold/20 to-orange/20 rounded-lg flex items-center justify-center">
-                      {item.productId?.images && item.productId.images.length > 0 ? (
+                      {typeof item.productId === 'object' && item.productId?.images && item.productId.images.length > 0 ? (
                         <img
                           src={item.productId.images[0]}
                           alt={item.productId.name || 'Product'}
@@ -143,7 +142,7 @@ const CartPage: React.FC = () => {
                     {/* Product Details */}
                     <div className="flex-1">
                       <h3 className="font-semibold text-navy mb-1">
-                        {item.productId?.name || `Product ${item.productId}`}
+                        {(typeof item.productId === 'object' ? item.productId?.name : null) || `Product ${item.productId}`}
                       </h3>
                       {item.variant && (
                         <div className="flex gap-2 mb-2">
@@ -160,7 +159,7 @@ const CartPage: React.FC = () => {
                         </div>
                       )}
                       <p className="text-sm text-navy/60">
-                        SKU: {item.productId?.SKU || 'N/A'}
+                        SKU: {(typeof item.productId === 'object' ? item.productId?.SKU : null) || 'N/A'}
                       </p>
                     </div>
 
@@ -178,7 +177,7 @@ const CartPage: React.FC = () => {
                       </span>
                       <button
                         onClick={() => handleQuantityChange(item._id, item.quantity + 1)}
-                        disabled={item.quantity >= (item.productId?.stock || 99)} // Use product stock or max limit
+                        disabled={item.quantity >= ((typeof item.productId === 'object' ? item.productId?.stock : undefined) || 99)} // Use product stock or max limit
                         className="p-1 border border-gold/20 rounded hover:bg-gold/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
                       >
                         <Plus size={16} />

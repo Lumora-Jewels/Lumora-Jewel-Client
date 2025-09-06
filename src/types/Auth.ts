@@ -34,3 +34,7 @@ export interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
 }
+
+
+
+

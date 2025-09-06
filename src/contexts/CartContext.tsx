@@ -107,11 +107,13 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   };
 
   const getCartItemCount = (): number => {
-    return cart?.totalItems || 0;
+    if (!cart || !Array.isArray(cart.items)) return 0;
+    return cart.items.reduce((sum, item) => sum + item.quantity, 0);
   };
 
   const getCartTotal = (): number => {
-    return cart?.totalPrice || 0;
+    if (!cart || !Array.isArray(cart.items)) return 0;
+    return cart.items.reduce((sum, item) => sum + (item.priceSnapshot * item.quantity), 0);
   };
 
   const value: CartContextType = {
