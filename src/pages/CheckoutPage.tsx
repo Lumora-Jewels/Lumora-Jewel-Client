@@ -3,8 +3,7 @@ import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import { orderService } from '../services/orderService';
 import { paymentService } from '../services/paymentService';
-import type { CreateOrderRequest, ShippingAddress } from '../types/Order';
-import type { CreatePaymentRequest } from '../types/Payment';
+import type { ShippingAddress } from '../types/Order';
 import { ArrowLeft, CreditCard, Lock, Banknote } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -106,14 +105,27 @@ const CheckoutPage: React.FC = () => {
 
       // Create payment record
       const paymentData = {
-        userId: user._id,
         orderId: order._id,
         amount: calculateTotal(),
-        currency: 'usd',
-        method: paymentMethod === 'cash_on_delivery' ? 'cash_on_delivery' : 'card',
-      };
+        paymentMethod: paymentMethod,
+        paymentDetails: paymentMethod === 'cash_on_delivery' || paymentMethod === 'paypal' ? {} : {
+          cardNumber: paymentDetails.cardNumber,
+          expiryDate: paymentDetails.expiryDate,
+          cvv: paymentDetails.cvv,
+          cardholderName: paymentDetails.cardholderName,
+          billingAddress: {
+            firstName: shippingAddress.firstName,
+            lastName: shippingAddress.lastName,
+            address: shippingAddress.address,
+            city: shippingAddress.city,
+            state: shippingAddress.state,
+            zipCode: shippingAddress.zipCode,
+            country: shippingAddress.country,
+          }
+        }
+      } as const;
 
-      await paymentService.createPayment(paymentData);
+      await paymentService.createPayment(paymentData as any);
 
       // Clear cart
       await clearCart();

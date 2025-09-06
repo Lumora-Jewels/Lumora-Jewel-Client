@@ -139,7 +139,7 @@ const ItemsSection: React.FC<ItemsSectionProps> = ({ categoryId, className = "" 
         });
         
         // Handle different response structures
-        let productsData = [];
+        let productsData: Product[] = [];
         if (Array.isArray(response)) {
           productsData = response;
         } else if (response && response.products && Array.isArray(response.products)) {
